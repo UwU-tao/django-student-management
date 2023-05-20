@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from .serializers import StudentSerializer
 from .forms import StudentForm
-
+from datetime import datetime
 
 def index(request):
     data = Student.objects.all()
@@ -90,18 +90,21 @@ def addStudent(request):
         name = request.POST['nameInput']
         dob = request.POST['dobInput']
         hometown = request.POST['htInput']
-
-        # Check if all the required fields are present
+        
         if student_id and name and dob and hometown:
-            # Create a new Student object and populate its fields
+            dob_datetime = datetime.strptime(dob, '%Y-%m-%d')
+            if dob_datetime > datetime.now():
+                return JsonResponse({'success': False, 'error': 'Invalid date of birth'})
+            
+            if len(student_id) != 8:
+                return JsonResponse({'success': False, 'error': 'Invalid student ID length'})
+            
             student = Student(masv=student_id, hoten=name, ngaysinh=dob, quequan=hometown)
-            # Save the student object to the database
             student.save()
-            # Return a JSON response indicating success
             return JsonResponse({'success': True, 'student_id': student.masv})
+        
         else:
-            # Return a JSON response with an error message
             return JsonResponse({'success': False, 'error': 'Incomplete data'})
-
+        
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 

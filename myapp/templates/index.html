@@ -123,11 +123,19 @@ $(document).ready(function() {
 			xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
 		},
 		success: function(response) {
-			window.location.reload();
-			$('#addStudentModal').modal('hide');
+			if (response.success) {
+				window.location.reload();
+				$('#addStudentModal').modal('hide');
+			} else {
+				if (response.error === 'Invalid student ID length') {
+					window.alert('Invalid student ID length. Student ID must be 8 characters long.');
+				} else {
+					window.alert('An error occurred: ' + response.error);
+				}
+			}
 		},
 		error: function(xhr, textStatus, errorThrown) {
-			console.log(errorThrown); // Handle the error gracefully
+			console.log(errorThrown);
 		}
 		});
 	
